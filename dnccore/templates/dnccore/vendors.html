@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<h1>Vendors</h1>
+
+<table>
+    <tr>
+        <th>Vendor Name</th>
+        <th>Phone #</th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+    {% for vendor in vendors %}
+    <tr>
+        <td>{{vendor.vendor_name}}</td>
+        <td>{{vendor.phone_number}}</td>
+        <td><a href="{% url 'update-vendor' vendor.id %}">Edit</a></td>
+        <td><a href="{% url 'delete-vendor' vendor.id %}">Delete</a></td>
+        <td><a href="{% url 'vendor' vendor.id %}">View</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock content %}

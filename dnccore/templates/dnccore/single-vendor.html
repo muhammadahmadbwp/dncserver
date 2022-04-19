@@ -1,0 +1,13 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>{{vendor.vendor_name}}</h1>
+<hr>
+{% for dnc in vendor_dncs %}
+<span style="border: 1px solid grey">{{dnc.dnc_number}}</span><br>
+{% endfor %}
+<hr>
+<br>
+
+{% endblock content %}
