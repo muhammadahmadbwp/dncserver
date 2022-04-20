@@ -1,7 +1,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from rest_framework import status, viewsets
+from rest_framework.response import Response
+from rest_framework.parsers import (JSONParser, MultiPartParser, FormParser, FileUploadParser)
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Vendor, DncNumber
 from .forms import VendorForm
+from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer
 
 
 def vendors(request):
@@ -46,3 +51,85 @@ def deleteVendor(request, pk):
         return redirect('vendors')
     context = {'object':vendor}
     return render(request, 'dnccore/delete_template.html', context)
+
+
+class VendorViewSet(viewsets.ViewSet):
+
+    parser_classes = [JSONParser, MultiPartParser, FormParser, FileUploadParser]
+    permission_classes = [AllowAny]
+
+    def get_queryset(self, request):
+        queryset = Vendor.objects.all()
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset(request)
+        serializer = VendorSerializer(queryset, many=True)
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        serializer = VendorSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"vendor created successfully"}, status=status.HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        queryset = self.get_queryset(request).get(pk=pk)
+        serializer = VendorSerializer(instance=queryset, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"vendor updated successfully"}, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset(request).get(pk=pk)
+        serializer = GetVendorSerializer(queryset)
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        self.get_queryset(request).get(pk=pk).delete()
+        return Response({"data":[], "success":True, "message":"vendor deleted successfully"}, status=status.HTTP_200_OK)
+
+
+class DncNumberViewSet(viewsets.ViewSet):
+
+    parser_classes = [JSONParser, MultiPartParser, FormParser, FileUploadParser]
+    permission_classes = [AllowAny]
+
+    def get_queryset(self, request):
+        queryset = DncNumber.objects.all()
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset(request)
+        serializer = DncNumberSerializer(queryset, many=True)
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        serializer = DncNumberSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"dnc created successfully"}, status=status.HTTP_200_OK)
+
+    def update(self, request, pk=None):
+        queryset = self.get_queryset(request).get(pk=pk)
+        serializer = DncNumberSerializer(instance=queryset, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"dnc updated successfully"}, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset(request).get(pk=pk)
+        serializer = DncNumberSerializer(queryset)
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        self.get_queryset(request).get(pk=pk).delete()
+        return Response({"data":[], "success":True, "message":"dnc deleted successfully"}, status=status.HTTP_200_OK)

@@ -1,7 +1,16 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+
+router.register(r'vendor_view', views.VendorViewSet, basename='vendor-api')
+
+router.register(r'dncnumber_view', views.DncNumberViewSet, basename='dncnumber-api')
 
 urlpatterns = [
+    path('api/', include(router.urls)),
+
     path('', views.vendors, name='vendors'),
 
     path('vendor/<str:pk>/', views.vendor, name='vendor'),
