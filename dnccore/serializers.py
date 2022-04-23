@@ -9,6 +9,14 @@ class VendorSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class GetVendorSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Vendor
+        fields = "__all__"
+        depth = 1
+
+
 class DncNumberSerializer(serializers.ModelSerializer):
 
     class Meta:

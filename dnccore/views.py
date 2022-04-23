@@ -9,6 +9,10 @@ from .forms import VendorForm
 from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer
 
 
+import csv
+import io
+
+
 def vendors(request):
     vendors = Vendor.objects.all()
     context = {'vendors':vendors}
@@ -100,7 +104,13 @@ class DncNumberViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self, request):
+        vendor_id = self.request.query_params.get('vendor_id', None)
+        search_dnc_num = self.request.query_params.get('search_dnc_num', None)
         queryset = DncNumber.objects.all()
+        if vendor_id != '' and vendor_id is not None:
+            queryset = queryset.objects.filter(vendor = vendor_id)        
+        if search_dnc_num != '' and search_dnc_num is not None:
+            queryset = DncNumber.objects.filter(dnc_number__icontains = search_dnc_num)
         return queryset
 
     def list(self, request):
@@ -110,7 +120,14 @@ class DncNumberViewSet(viewsets.ViewSet):
         return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = DncNumberSerializer(data=request.data)
+        file = request.FILES['dnc_num_file']
+        file = file.read().decode('utf-8')
+        reader = csv.DictReader(io.StringIO(file))
+        data = []
+        for line in reader:
+            line['vendor'] = request.data['vendor_id']
+            data.append(line)
+        serializer = DncNumberSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = serializer.data

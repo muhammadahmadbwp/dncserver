@@ -32,10 +32,19 @@ def _handle_generic_error(exc, context, response):
     data = {'data': [], 'status': False}
 
     if response is not None:
-        key = list(response.data.keys())[0]
-        value = response.data[key]
-        data['message'] = get_error_msg(value, key)
-        response.data = data
+        if isinstance(response.data, list):
+            if isinstance(response.data, str):
+                data['message'] = f"{response.data.lower()}"
+                response.data = data
+                
+            else:
+                data['message'] = f"{response.data[0]}"
+                response.data = data
+        else:
+            key = list(response.data.keys())[0]
+            value = response.data[key]
+            data['message'] = get_error_msg(value, key)
+            response.data = data
     # else:
     #     data['message'] = f"{exc.__class__.__name__}: {exc} {context}"
     #     return Response(data)
