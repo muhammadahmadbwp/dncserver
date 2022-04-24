@@ -9,14 +9,6 @@ class VendorSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class GetVendorSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Vendor
-        fields = "__all__"
-        depth = 1
-
-
 class DncNumberSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -35,3 +27,11 @@ class GetVendorSerializer(serializers.ModelSerializer):
     def get_dnc_list(self, obj):
         queryset = DncNumber.objects.filter(vendor=obj.id)
         return DncNumberSerializer(queryset, many=True).data
+
+
+class GetDncNumberSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DncNumber
+        fields = "__all__"
+        depth = 1

@@ -11,13 +11,13 @@ router.register(r'dncnumber_view', views.DncNumberViewSet, basename='dncnumber-a
 urlpatterns = [
     path('api/', include(router.urls)),
 
-    path('', views.vendors, name='vendors'),
+    # path('', views.vendors, name='vendors'),
 
-    path('vendor/<str:pk>/', views.vendor, name='vendor'),
+    # path('vendor/<str:pk>/', views.vendor, name='vendor'),
 
-    path('create-vendor/', views.createVendor, name='create-vendor'),
+    # path('create-vendor/', views.createVendor, name='create-vendor'),
 
-    path('update-vendor/<str:pk>/', views.updateVendor, name='update-vendor'),
+    # path('update-vendor/<str:pk>/', views.updateVendor, name='update-vendor'),
 
-    path('delete-vendor/<str:pk>/', views.deleteVendor, name='delete-vendor')
+    # path('delete-vendor/<str:pk>/', views.deleteVendor, name='delete-vendor')
 ]

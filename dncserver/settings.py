@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_)^ovq6)^8mh0(47!^!l=5=&21%^sr$hvb1j)pwg!xs70ry(ke'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,12 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'dnccore'
+    'dnccore',
+    'frontend'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -124,7 +126,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+    BASE_DIR / 'static',
+    os.path.join(BASE_DIR, 'frontend/templates/frontend')
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
@@ -149,3 +152,14 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 50,
     'EXCEPTION_HANDLER': 'common.custom_exception.custom_exception_handler',
 }
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8080",
+]
+
+
+CORS_ALLOW_ALL_ORIGINS: True
+
+
+CORS_ORIGIN_ALLOW_ALL = True

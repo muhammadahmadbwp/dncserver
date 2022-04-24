@@ -6,7 +6,7 @@ from rest_framework.parsers import (JSONParser, MultiPartParser, FormParser, Fil
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Vendor, DncNumber
 from .forms import VendorForm
-from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer
+from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer, GetDncNumberSerializer
 
 
 import csv
@@ -108,14 +108,14 @@ class DncNumberViewSet(viewsets.ViewSet):
         search_dnc_num = self.request.query_params.get('search_dnc_num', None)
         queryset = DncNumber.objects.all()
         if vendor_id != '' and vendor_id is not None:
-            queryset = queryset.objects.filter(vendor = vendor_id)        
+            queryset = queryset.filter(vendor = vendor_id)        
         if search_dnc_num != '' and search_dnc_num is not None:
-            queryset = DncNumber.objects.filter(dnc_number__icontains = search_dnc_num)
+            queryset = queryset.filter(dnc_number__icontains = search_dnc_num)
         return queryset
 
     def list(self, request):
         queryset = self.get_queryset(request)
-        serializer = DncNumberSerializer(queryset, many=True)
+        serializer = GetDncNumberSerializer(queryset, many=True)
         data = serializer.data
         return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
 
