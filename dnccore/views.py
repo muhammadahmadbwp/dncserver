@@ -7,11 +7,13 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Vendor, DncNumber
 from .forms import VendorForm
 from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer, GetDncNumberSerializer
+from django.contrib.auth.models import User
 
 
 import csv
 import io
 
+import time
 
 def vendors(request):
     vendors = Vendor.objects.all()
@@ -114,24 +116,44 @@ class DncNumberViewSet(viewsets.ViewSet):
         return queryset
 
     def list(self, request):
-        queryset = self.get_queryset(request)
-        serializer = GetDncNumberSerializer(queryset, many=True)
-        data = serializer.data
-        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+        vendor_id = self.request.query_params.get('vendor_id', None)
+        search_dnc_num = self.request.query_params.get('search_dnc_num', None)
+        if vendor_id != '' and vendor_id is not None and search_dnc_num != '' and search_dnc_num is not None:
+            queryset = DncNumber.objects.filter(vendor = vendor_id, dnc_number__icontains = search_dnc_num)
+            serializer = GetDncNumberSerializer(queryset, many=True)
+            data = serializer.data
+            return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+        return Response({"data":[], "success":True, "message":"no data found"}, status=status.HTTP_200_OK)
 
     def create(self, request):
         file = request.FILES['dnc_num_file']
-        file = file.read().decode('utf-8')
+        file = file.read().decode('ISO-8859-1')
         reader = csv.DictReader(io.StringIO(file))
         data = []
-        for line in reader:
+        error_data = []
+        st = time.time()
+        for n, line in enumerate(reader):
+            line['dnc_number'] = line['Phone'].strip()
+            if len(line['dnc_number']) > 10:
+                error_data.append({"message":f"phone number {line['dnc_number']} at line {n+2} exceeded the set limit"})
+                continue
             line['vendor'] = request.data['vendor_id']
-            data.append(line)
-        serializer = DncNumberSerializer(data=data, many=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        data = serializer.data
-        return Response({"data":data, "success":True, "message":"dnc created successfully"}, status=status.HTTP_200_OK)
+            line.pop('Phone')
+            data.append(DncNumber(dnc_number=line['dnc_number'], vendor_id=line['vendor']))
+        et = time.time()
+        print('loop', et-st)
+        st = time.time()
+        DncNumber.objects.bulk_create(data)
+        et = time.time()
+        print('save', et-st)
+        # st = time.time()
+        # serializer = DncNumberSerializer(data=data, many=True)
+        # serializer.is_valid(raise_exception=True)
+        # serializer.save()
+        # et = time.time()
+        # print('save', et-st)
+        # data = serializer.data
+        return Response({"data":error_data, "success":True, "message":"dnc created successfully"}, status=status.HTTP_200_OK)
 
     def update(self, request, pk=None):
         queryset = self.get_queryset(request).get(pk=pk)
