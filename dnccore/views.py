@@ -65,13 +65,18 @@ def deleteVendor(request, pk):
 
 class AuthUserViewSet(viewsets.ModelViewSet):
 
-    @action(methods=['POST'], authentication_classes=[BasicAuthentication], permission_classes=[IsAuthenticated], detail=False)
+    @action(methods=['POST'], permission_classes=[AllowAny], detail=False)
     def login(self, request):
-        queryset = User.objects.get(id=request.user.id)
+        username = request.data['Username']
+        password = request.data['Password']
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response({"data":[], "success":False, "message":"Invalid username/password. Please try again!"}, status=status.HTTP_200_OK)
+        queryset = User.objects.get(username=user)
         data = {
-                'id': str(request.user.id),
-                'user': str(request.user),
-                'is_admin': str(request.user.is_superuser)
+                'id': str(queryset.id),
+                'user': str(queryset.username),
+                'is_admin': str(queryset.is_superuser)
             }
         return Response({"data":data, "success":True, "message":"user logged in successfully"}, status=status.HTTP_200_OK)
 
