@@ -8,6 +8,8 @@ router.register(r'vendor_view', views.VendorViewSet, basename='vendor-api')
 
 router.register(r'dncnumber_view', views.DncNumberViewSet, basename='dncnumber-api')
 
+router.register(r'userauth', views.AuthUserViewSet, basename='authuser-api')
+
 urlpatterns = [
     path('api/', include(router.urls)),
 

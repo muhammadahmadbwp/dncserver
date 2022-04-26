@@ -4,10 +4,14 @@ from rest_framework import status, viewsets
 from rest_framework.response import Response
 from rest_framework.parsers import (JSONParser, MultiPartParser, FormParser, FileUploadParser)
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from .models import Vendor, DncNumber
 from .forms import VendorForm
 from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer, GetDncNumberSerializer
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from rest_framework.decorators import action
+
 
 
 import csv
@@ -57,6 +61,19 @@ def deleteVendor(request, pk):
         return redirect('vendors')
     context = {'object':vendor}
     return render(request, 'dnccore/delete_template.html', context)
+
+
+class AuthUserViewSet(viewsets.ModelViewSet):
+
+    @action(methods=['POST'], authentication_classes=[BasicAuthentication], permission_classes=[IsAuthenticated], detail=False)
+    def login(self, request):
+        queryset = User.objects.get(id=request.user.id)
+        data = {
+                'id': str(request.user.id),
+                'user': str(request.user),
+                'is_admin': str(request.user.is_superuser)
+            }
+        return Response({"data":data, "success":True, "message":"user logged in successfully"}, status=status.HTTP_200_OK)
 
 
 class VendorViewSet(viewsets.ViewSet):
