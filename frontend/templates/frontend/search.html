@@ -56,9 +56,13 @@
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">DNC Server Components:</h6>
+                        {% if user.is_superuser %}
                         <a class="collapse-item" href="{% url 'add-vendor' %}">Add Vendor</a>
                         <a class="collapse-item" href="{% url 'upload-dnc-file' %}">Upload File</a>
                         <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
+                        {% else %}
+                        <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
+                        {% endif %}
 
                     </div>
                 </div>
@@ -89,6 +93,7 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="p-5">
+                                        <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
                                         <div class="text-center">
                                             <h1 class="h4 text-gray-900 mb-4">Search DNC Numbers!</h1>
                                         </div>

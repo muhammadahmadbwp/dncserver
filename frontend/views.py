@@ -1,15 +1,34 @@
 from django.shortcuts import render
+from django.contrib.auth import logout
+
 
 # Create your views here.
 
 def login_page(request):
+	if request.user.is_authenticated:
+		return render(request, 'frontend/search.html')	
 	return render(request, 'frontend/login.html')
 
 def add_vendor(request):
-	return render(request, 'frontend/vendor.html')
+	if request.user.is_authenticated and request.user.is_superuser:
+		return render(request, 'frontend/vendor.html', {'user':request.user})
+	elif request.user.is_authenticated and not request.user.is_superuser:
+		return render(request, 'frontend/search.html', {'user':request.user})
+	else:
+		return render(request, 'frontend/login.html')
 
 def upload_dnc_file(request):
-	return render(request, 'frontend/uploadfile.html')
+	if request.user.is_authenticated and request.user.is_superuser:
+		return render(request, 'frontend/uploadfile.html', {'user':request.user})
+	elif request.user.is_authenticated and not request.user.is_superuser:
+		return render(request, 'frontend/search.html', {'user':request.user})
+	else:
+		return render(request, 'frontend/login.html')
 
 def search_dnc_system(request):
-	return render(request, 'frontend/search.html')
+	if request.user.is_authenticated:
+		return render(request, 'frontend/search.html', {'user':request.user})
+	return render(request, 'frontend/login.html')
+
+def logout_view(request):
+	return render(logout(request), 'frontend/login.html')	

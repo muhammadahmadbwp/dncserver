@@ -9,7 +9,7 @@ from .models import Vendor, DncNumber
 from .forms import VendorForm
 from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer, GetDncNumberSerializer
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from rest_framework.decorators import action
 
 
@@ -72,6 +72,7 @@ class AuthUserViewSet(viewsets.ModelViewSet):
         user = authenticate(username=username, password=password)
         if not user:
             return Response({"data":[], "success":False, "message":"Invalid username/password. Please try again!"}, status=status.HTTP_200_OK)
+        login(request, user)
         queryset = User.objects.get(username=user)
         data = {
                 'id': str(queryset.id),

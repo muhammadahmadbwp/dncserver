@@ -9,4 +9,6 @@ urlpatterns = [
 	path('upload-dnc-file', views.upload_dnc_file, name="upload-dnc-file"),
 
 	path('add-vendor', views.add_vendor, name="add-vendor"),
+
+	path('logout', views.logout_view, name="logout"),
 ]
