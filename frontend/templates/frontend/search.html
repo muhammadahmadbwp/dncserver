@@ -24,6 +24,27 @@
     <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
 </head>
 
+<style type="text/css">
+
+.overlay{
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    background: rgba(255,255,255,0.8) url("{% static 'img/loader.gif' %}") center no-repeat;
+}
+/* Turn off scrollbar when body element has the loading class */
+body.loading{
+    overflow: hidden;   
+}
+/* Make spinner image visible when body element has the loading class */
+body.loading .overlay{
+    display: block;
+}
+</style>
 <body id="page-top">
 
     <!-- Page Wrapper -->
@@ -115,7 +136,7 @@
                                           
                                         </form>
                                         <hr>
-                                       
+                                        <div class="overlay"></div>
                                     </div>
                                 </div>
                             </div>
@@ -218,7 +239,8 @@
         let phoneNumber = $("#PhoneNumber").val();
 
         let _url  = "http://127.0.0.1:8000/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
-         $.ajax({
+		$("body").addClass("loading");							  
+        $.ajax({
                    type: 'GET',
                     url: _url,
                     data: null,
@@ -234,6 +256,7 @@
                             let data=[];
                             if (response.success)
                             {
+									$("body").removeClass("loading");
                                     data=response.data;
                             }
                              $('#dtSupplier').DataTable({
@@ -256,11 +279,11 @@
                         }
                         catch (ex) {
                             console.log(ex);
-
+							$("body").removeClass("loading");
                         }
                     },
                     error: function () {
-
+						$("body").removeClass("loading");
                     }
                 });
 
@@ -272,7 +295,7 @@
 
         let _data =null;
         let _url  = "http://127.0.0.1:8000/api/vendor_view/";
-         $.ajax({
+		$.ajax({
                     type: 'GET',
                     url: _url,
                     data: _data,
