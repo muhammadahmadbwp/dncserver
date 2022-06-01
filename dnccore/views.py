@@ -155,39 +155,50 @@ class DncNumberViewSet(viewsets.ViewSet):
         return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
 
     def create(self, request):
-        if not request.FILES['dnc_num_file'].name.lower().endswith(('.csv')):
-            return Response({"data":[], "success":True, "message":"file format not supported, please upload a csv file"}, status=status.HTTP_200_OK)
-        try:
-            file = request.FILES['dnc_num_file']
-            file = file.read().decode('ISO-8859-1')
-            reader = csv.DictReader(io.StringIO(file))
-            data = []
-            error_data = []
-            st = time.time()
-            for n, line in enumerate(reader):
-                line['dnc_number'] = line['Phone'].strip()
-                if len(line['dnc_number']) > 10:
-                    error_data.append({"message":f"phone number {line['dnc_number']} at line {n+2} exceeded the set limit"})
-                    continue
-                line['vendor'] = request.data['vendor_id']
-                line.pop('Phone')
-                data.append(DncNumber(dnc_number=line['dnc_number'], vendor_id=line['vendor']))
-            et = time.time()
-            print('loop', et-st)
-            st = time.time()
-            DncNumber.objects.bulk_create(data)
-            et = time.time()
-            print('save', et-st)
-        except:
-            return Response({"data":[], "success":True, "message":"error occurred ... file uploading failed"}, status=status.HTTP_200_OK)
-        # st = time.time()
-        # serializer = DncNumberSerializer(data=data, many=True)
-        # serializer.is_valid(raise_exception=True)
-        # serializer.save()
-        # et = time.time()
-        # print('save', et-st)
-        # data = serializer.data
-        return Response({"data":error_data, "success":True, "message":"dnc created successfully"}, status=status.HTTP_200_OK)
+        if 'dnc_num_file' in request.FILES:
+            if not request.FILES['dnc_num_file'].name.lower().endswith(('.csv')):
+                return Response({"data":[], "success":True, "message":"file format not supported, please upload a csv file"}, status=status.HTTP_200_OK)
+            try:
+                file = request.FILES['dnc_num_file']
+                file = file.read().decode('ISO-8859-1')
+                reader = csv.DictReader(io.StringIO(file))
+                data = []
+                error_data = []
+                st = time.time()
+                for n, line in enumerate(reader):
+                    line['dnc_number'] = line['Phone'].strip()
+                    if len(line['dnc_number']) > 10:
+                        error_data.append({"message":f"phone number {line['dnc_number']} at line {n+2} exceeded the set limit"})
+                        continue
+                    line['vendor'] = request.data['vendor_id']
+                    line.pop('Phone')
+                    data.append(DncNumber(dnc_number=line['dnc_number'], vendor_id=line['vendor']))
+                et = time.time()
+                print('loop', et-st)
+                st = time.time()
+                DncNumber.objects.bulk_create(data)
+                et = time.time()
+                print('save', et-st)
+            except:
+                return Response({"data":[], "success":True, "message":"error occurred ... file uploading failed"}, status=status.HTTP_200_OK)
+            # st = time.time()
+            # serializer = DncNumberSerializer(data=data, many=True)
+            # serializer.is_valid(raise_exception=True)
+            # serializer.save()
+            # et = time.time()
+            # print('save', et-st)
+            # data = serializer.data
+            return Response({"data":error_data, "success":True, "message":"dnc created successfully"}, status=status.HTTP_200_OK)
+        else:
+            data = dict()
+            data['dnc_number'] = request.data['dnc_num']
+            data['vendor'] = request.data['vendor_id']
+            serializer = DncNumberSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            data = serializer.data
+            return Response({"data":data, "success":True, "message":"dnc number created successfully"}, status=status.HTTP_200_OK)
+
 
     def update(self, request, pk=None):
         queryset = self.get_queryset(request).get(pk=pk)
