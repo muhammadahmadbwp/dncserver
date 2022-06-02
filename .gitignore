@@ -7,9 +7,14 @@ db.sqlite3
 media
 
 # Backup files # 
-*.bak 
+*.bak
+
+# If you are using visual studio #
+.vs/*
 
 # If you are using PyCharm # 
+.idea/*
+
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml
