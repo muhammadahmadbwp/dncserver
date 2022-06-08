@@ -155,6 +155,7 @@ body.loading .overlay{
                                         <tr>
                                             <th>Vendor Name</th>
                                             <th>Contact Number</th>
+											<th>Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -266,12 +267,18 @@ body.loading .overlay{
                                                         "pageLength": 5,
                                                         // "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
                                                         //"order": [[0, "desc"]],
-                                                        //"fnCreatedRow": function (nRow, row, iDataIndex) {
-                                                        //    $(nRow).attr('id', row.vendor_id);
-                                                        //},
+                                                        "fnCreatedRow": function (nRow, row, iDataIndex) {
+                                                           $(nRow).attr('id', row.id);
+                                                        },
                                                         columns: [
                                                               { "data": "vendor.vendor_name" },
                                                                { "data": "dnc_number" },
+															   {
+                 "render": function (data, type, row, meta) {
+                  return "<a href='#' onclick=Delete('" + row.id + "'); class='fa fa-trash fa-lg alert-danger'></a>";
+                   
+                 }
+             },
 
                                                         ]
                                                         });
@@ -289,7 +296,29 @@ body.loading .overlay{
 
         });
     });
-
+function Delete(Id)
+{
+// let data = { Id: Id };
+let url = "http://127.0.0.1:8000/api/dncnumber_view/" + Id + "/";
+let   Table = $('#dtSupplier').DataTable();
+ $.ajax({
+                url: url,
+                type: "DELETE",
+                async: true,
+                processData: false,
+                cache: false,
+                contentType: false,
+                success: function (msg) {
+                    if (msg.success) {
+                        Table.row($("#" + Id).closest('tr')).remove().draw();
+                    }
+                   
+                },
+                error: function (msg) {
+                  
+                }
+            });
+}
     function GetAllSupplier()
     {
 
