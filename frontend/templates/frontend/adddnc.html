@@ -21,7 +21,7 @@
 
     <!-- Custom styles for this template-->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
-
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
 </head>
 
 <style type="text/css">
@@ -59,7 +59,9 @@ body.loading .overlay{
                     </div>
                     <!--<div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>-->
                 </a>
-           
+            <!-- Divider -->
+          
+            <!-- Divider -->
             <hr class="sidebar-divider">
             <!-- Heading -->
             <div class="sidebar-heading">
@@ -75,10 +77,16 @@ body.loading .overlay{
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">DNC Server Components:</h6>
+                        {% if user.is_superuser %}
                         <a class="collapse-item" href="{% url 'add-vendor' %}">Add Vendor</a>
                         <a class="collapse-item" href="{% url 'upload-dnc-file' %}">Upload File</a>
                         <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
                         <a class="collapse-item" href="{% url 'add-dnc-number' %}">Add DNC</a>
+                        {% else %}
+                        <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
+                        <a class="collapse-item" href="{% url 'add-dnc-number' %}">Add DNC</a>
+                        {% endif %}
+
                     </div>
                 </div>
             </li>
@@ -110,7 +118,7 @@ body.loading .overlay{
                                     <div class="p-5">
                                         <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
                                         <div class="text-center">
-                                            <h1 class="h4 text-gray-900 mb-4">Upload DNC Contacts!</h1>
+                                            <h1 class="h4 text-gray-900 mb-4">Add DNC Number!</h1>
                                         </div>
                                         <form class="user">
                                             <div class="form-group row">
@@ -118,12 +126,13 @@ body.loading .overlay{
                                                     <select class="form-control" id="SupplierId"></select>
                                                 </div>
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
-                                                    <input type="file" class="form-control" id="ContactsFile" />
+                                                    <input type="text" class="form-control" id="DNCNumber"
+                                                           placeholder="DNC Number">
                                                 </div>
                                             </div>
                                            
                                             <a href="#" id="linkSaveSupplier" class="btn btn-primary btn-user btn-block">
-                                                Upload DNC File 
+                                                Add
                                             </a>
                                            
                                           
@@ -137,7 +146,26 @@ body.loading .overlay{
                     </div>
                     <!-- Content Row -->
 
-                    
+                   <!--  <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Vendor Contacts List</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dtSupplier" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Vendor Name</th>
+                                            <th>Contact Number</th>
+											<th>Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>-->
 
 
                 </div>
@@ -196,13 +224,11 @@ body.loading .overlay{
 
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
-
     <!-- Page level plugins -->
-    <!-- <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script> -->
-
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
     <!-- Page level custom scripts -->
-    <!-- <script src="{% static 'js/demo/chart-area-demo.js' %}"></script> -->
-    <!-- <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script> -->
+    <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
 
 </body>
 
@@ -213,47 +239,44 @@ body.loading .overlay{
     GetAllSupplier();
     $("#linkSaveSupplier").click(function(){
         let supplierId = $("#SupplierId").val();
-        if (supplierId == null || supplierId == "")
-        {
-            alert("Please select vendor ");
-            $("#supplierId").focus();
-            return;
-        }
-
-        var input = document.getElementById('ContactsFile');
-        if (!input) {
-          alert("couldn't find the fileinput element.");
-          return;
-        }
-        else if (!input.files) {
-          alert("This browser doesn't seem to support the `files` property of file inputs.");return;
-        }
-        else if (!input.files[0]) {
-          alert("Please select a file before clicking 'Load'");return;
-        }
-          var file = input.files[0];
-
-        let _data = new FormData();
-        _data.append( 'vendor_id',supplierId);
-        _data.append( 'dnc_num_file',file);
-
+        let DNCNumber = $("#DNCNumber").val();
+		if(supplierId =="")
+{
+alert("Please select supplier.")
+return;
+}
+if(DNCNumber =="")
+{
+alert("Please enter DNC Number.")
+return;
+}	
         let _url  = "http://127.0.0.1:8000/api/dncnumber_view/";
-        $("body").addClass("loading");
-		$.ajax({
-                   type: 'POST',
+		// $("body").addClass("loading");				
+        let formData = new FormData();
+		formData.append("dnc_num",DNCNumber);
+		formData.append("vendor_id",supplierId);
+        $.ajax({
+            type: 'POST',
                     url: _url,
-                    data: _data,
+                    data: formData,
                     cache: false,
                     processData: false,
                     contentType: false,
                     success: function (response) {
                         try
                         {
+
                             alert(response.message);
+                            //let data=[];
                             if (response.success)
-                            {
-								$("body").removeClass("loading");
+                            {$("#SupplierId").val("");
+							$("#DNCNumber").val("");
+									//$("body").removeClass("loading");
+                                    //data=response.data;
                             }
+                            
+                     
+
                         }
                         catch (ex) {
                             console.log(ex);
@@ -267,13 +290,35 @@ body.loading .overlay{
 
         });
     });
-
+function Delete(Id)
+{
+ let data = { Id: Id };
+ let url = "http://127.0.0.1:8000/api/dncnumber_view/";
+let   Table = $('#tbl').DataTable();
+ $.ajax({
+                url: url,
+                type: "POST",
+                async: true,
+                processData: false,
+                cache: false,
+                contentType: false,
+                success: function (msg) {
+                    if (msg.issuccess) {
+                        Table.row($("#" + Id).closest('tr')).remove().draw();
+                    }
+                   
+                },
+                error: function (msg) {
+                  
+                }
+            });
+}
     function GetAllSupplier()
     {
 
         let _data =null;
         let _url  = "http://127.0.0.1:8000/api/vendor_view/";
-         $.ajax({
+		$.ajax({
                     type: 'GET',
                     url: _url,
                     data: _data,

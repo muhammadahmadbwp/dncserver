@@ -30,5 +30,10 @@ def search_dnc_system(request):
 		return render(request, 'frontend/search.html', {'user':request.user})
 	return render(request, 'frontend/login.html')
 
+def add_dnc_number(request):
+	if request.user.is_authenticated:
+		return render(request, 'frontend/adddnc.html', {'user':request.user})
+	return render(request, 'frontend/login.html')
+
 def logout_view(request):
 	return render(logout(request), 'frontend/login.html')	
