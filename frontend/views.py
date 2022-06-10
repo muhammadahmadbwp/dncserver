@@ -35,5 +35,15 @@ def add_dnc_number(request):
 		return render(request, 'frontend/adddnc.html', {'user':request.user})
 	return render(request, 'frontend/login.html')
 
+def add_dialed_dnc_number(request):
+	if request.user.is_authenticated:
+		return render(request, 'frontend/adddialeddnc.html', {'user':request.user})
+	return render(request, 'frontend/login.html')
+
+def search_dialed_dnc_system(request):
+	if request.user.is_authenticated:
+		return render(request, 'frontend/searchdialeddnc.html', {'user':request.user})
+	return render(request, 'frontend/login.html')
+
 def logout_view(request):
 	return render(logout(request), 'frontend/login.html')	

@@ -5,9 +5,16 @@ from rest_framework.response import Response
 from rest_framework.parsers import (JSONParser, MultiPartParser, FormParser, FileUploadParser)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from .models import Vendor, DncNumber
+from .models import Vendor, DncNumber, DialedDncNumber
 from .forms import VendorForm
-from .serializers import VendorSerializer, DncNumberSerializer, GetVendorSerializer, GetDncNumberSerializer
+from .serializers import (
+    VendorSerializer,
+    DncNumberSerializer,
+    GetVendorSerializer,
+    GetDncNumberSerializer,
+    DialedDncNumberSerializer,
+    GetDialedDncNumberSerializer
+)
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import action
@@ -135,7 +142,7 @@ class DncNumberViewSet(viewsets.ViewSet):
         if vendor_id != '' and vendor_id is not None:
             queryset = queryset.filter(vendor = vendor_id)        
         if search_dnc_num != '' and search_dnc_num is not None:
-            queryset = queryset.filter(dnc_number__icontains = search_dnc_num)
+            queryset = queryset.filter(dnc_number__iexact = search_dnc_num)
         return queryset
 
     def list(self, request):
@@ -146,13 +153,13 @@ class DncNumberViewSet(viewsets.ViewSet):
         #     serializer = GetDncNumberSerializer(queryset, many=True)
         #     data = serializer.data
         #     return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
-        # return Response({"data":[], "success":True, "message":"no data found"}, status=status.HTTP_200_OK)
+        # return Response({"data":[], "success":True, "message":"Number is Clean"}, status=status.HTTP_200_OK)
         queryset = self.get_queryset(request)
         serializer = GetDncNumberSerializer(queryset, many=True)
         data = serializer.data
         if not data:
-            return Response({"data":data, "success":True, "message":"no data found"}, status=status.HTTP_200_OK)    
-        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+            return Response({"data":data, "success":True, "message":"Number is Clean"}, status=status.HTTP_200_OK)    
+        return Response({"data":data, "success":True, "message":"Number is Exisiting or DNC"}, status=status.HTTP_200_OK)
 
     def create(self, request):
         if 'dnc_num_file' in request.FILES:
@@ -167,8 +174,8 @@ class DncNumberViewSet(viewsets.ViewSet):
                 st = time.time()
                 for n, line in enumerate(reader):
                     line['dnc_number'] = line['Phone'].strip()
-                    if len(line['dnc_number']) > 10:
-                        error_data.append({"message":f"phone number {line['dnc_number']} at line {n+2} exceeded the set limit"})
+                    if len(line['dnc_number']) == 10:
+                        error_data.append({"message":f"phone number {line['dnc_number']} at line {n+2} does not meet the set limit"})
                         continue
                     line['vendor'] = request.data['vendor_id']
                     line.pop('Phone')
@@ -211,6 +218,60 @@ class DncNumberViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset(request).get(pk=pk)
         serializer = DncNumberSerializer(queryset)
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
+
+    def destroy(self, request, pk=None):
+        self.get_queryset(request).get(pk=pk).delete()
+        return Response({"data":[], "success":True, "message":"dnc deleted successfully"}, status=status.HTTP_200_OK)
+
+
+class DialedDncNumberViewSet(viewsets.ViewSet):
+
+    parser_classes = [JSONParser, MultiPartParser, FormParser, FileUploadParser]
+    permission_classes = [AllowAny]
+
+    def get_queryset(self, request):
+        vendor_id = self.request.query_params.get('vendor_id', None)
+        search_dnc_num = self.request.query_params.get('search_dnc_num', None)
+        queryset = DialedDncNumber.objects.all()
+        if vendor_id != '' and vendor_id is not None:
+            queryset = queryset.filter(vendor = vendor_id)        
+        if search_dnc_num != '' and search_dnc_num is not None:
+            queryset = queryset.filter(dnc_number__iexact = search_dnc_num)
+        return queryset
+
+    def list(self, request):
+        queryset = self.get_queryset(request)
+        serializer = GetDialedDncNumberSerializer(queryset, many=True)
+        data = serializer.data
+        if not data:
+            return Response({"data":data, "success":True, "message":"Number is Clean"}, status=status.HTTP_200_OK)    
+        return Response({"data":data, "success":True, "message":"Number is Exisiting or DNC"}, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        data = dict()
+        print(request.data)
+        data['dnc_number'] = request.data['dnc_num']
+        data['vendor'] = request.data['vendor_id']
+        serializer = DialedDncNumberSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"dnc number created successfully"}, status=status.HTTP_200_OK)
+
+
+    def update(self, request, pk=None):
+        queryset = self.get_queryset(request).get(pk=pk)
+        serializer = DialedDncNumberSerializer(instance=queryset, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = serializer.data
+        return Response({"data":data, "success":True, "message":"dnc updated successfully"}, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        queryset = self.get_queryset(request).get(pk=pk)
+        serializer = DialedDncNumberSerializer(queryset)
         data = serializer.data
         return Response({"data":data, "success":True, "message":"data found"}, status=status.HTTP_200_OK)
 

@@ -122,7 +122,7 @@ body.loading .overlay{
                                     <div class="p-5">
                                         <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
                                         <div class="text-center">
-                                            <h1 class="h4 text-gray-900 mb-4">Search DNC Numbers!</h1>
+                                            <h1 class="h4 text-gray-900 mb-4">Search Dialed DNC Numbers!</h1>
                                         </div>
                                         <form class="user">
                                             <div class="form-group row">
@@ -161,9 +161,7 @@ body.loading .overlay{
                                         <tr>
                                             <th>Vendor Name</th>
                                             <th>Contact Number</th>
-                                            {% if user.is_superuser %}
-											<th>Delete</th>
-                                            {% endif %}
+											<th>Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -247,7 +245,7 @@ body.loading .overlay{
         let supplierId = $("#SupplierId").val();
         let phoneNumber = $("#PhoneNumber").val();
 
-        let _url  = "http://127.0.0.1:8000/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
+        let _url  = "http://127.0.0.1:8000/api/dialed_dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
 		$("body").addClass("loading");							  
         $.ajax({
                    type: 'GET',
@@ -279,16 +277,10 @@ body.loading .overlay{
                                                            $(nRow).attr('id', row.id);
                                                         },
                                                         columns: [
-                                                              { "data": "vendor.vendor_name" },
-                                                               { "data": "dnc_number" },
-															   {
-                 "render": function (data, type, row, meta) {
-                  return "<a href='#' onclick=Delete('" + row.id + "'); class='fa fa-trash fa-lg alert-danger'></a>";
-                   
-                 }
-             },
-
-                                                        ]
+                                                                { "data": "vendor.vendor_name" },
+                                                                { "data": "dnc_number" },
+															    { "data": "modified_at"}
+                                                            ]
                                                         });
 
                         }

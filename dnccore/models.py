@@ -22,3 +22,11 @@ class DncNumber(models.Model):
 
     def __str__(self):
         return self.dnc_number
+
+class DialedDncNumber(models.Model):
+    
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
+    dnc_number = models.CharField(max_length=20)
+    modified_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)

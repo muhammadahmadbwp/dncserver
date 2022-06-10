@@ -122,7 +122,7 @@ body.loading .overlay{
                                     <div class="p-5">
                                         <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
                                         <div class="text-center">
-                                            <h1 class="h4 text-gray-900 mb-4">Search DNC Numbers!</h1>
+                                            <h1 class="h4 text-gray-900 mb-4">Add Dialed DNC Number!</h1>
                                         </div>
                                         <form class="user">
                                             <div class="form-group row">
@@ -130,13 +130,13 @@ body.loading .overlay{
                                                     <select class="form-control" id="SupplierId"></select>
                                                 </div>
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
-                                                    <input type="text" class="form-control" id="PhoneNumber"
-                                                           placeholder="Phone Number">
+                                                    <input type="text" class="form-control" id="DNCNumber"
+                                                           placeholder="DNC Number">
                                                 </div>
                                             </div>
                                            
                                             <a href="#" id="linkSaveSupplier" class="btn btn-primary btn-user btn-block">
-                                                Search
+                                                Add
                                             </a>
                                            
                                           
@@ -150,7 +150,7 @@ body.loading .overlay{
                     </div>
                     <!-- Content Row -->
 
-                    <div class="card shadow mb-4">
+                   <!--  <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Vendor Contacts List</h6>
                         </div>
@@ -161,9 +161,7 @@ body.loading .overlay{
                                         <tr>
                                             <th>Vendor Name</th>
                                             <th>Contact Number</th>
-                                            {% if user.is_superuser %}
 											<th>Delete</th>
-                                            {% endif %}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -171,7 +169,7 @@ body.loading .overlay{
                                 </table>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
 
 
                 </div>
@@ -245,51 +243,43 @@ body.loading .overlay{
     GetAllSupplier();
     $("#linkSaveSupplier").click(function(){
         let supplierId = $("#SupplierId").val();
-        let phoneNumber = $("#PhoneNumber").val();
-
-        let _url  = "http://127.0.0.1:8000/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
-		$("body").addClass("loading");							  
+        let DNCNumber = $("#DNCNumber").val();
+		if(supplierId =="")
+{
+alert("Please select vendor")
+return;
+}
+if(DNCNumber =="")
+{
+alert("Please enter DNC Number.")
+return;
+}	
+        let _url  = "http://127.0.0.1:8000/api/dialed_dncnumber_view/";
+		// $("body").addClass("loading");				
+        let formData = new FormData();
+		formData.append("dnc_num",DNCNumber);
+		formData.append("vendor_id",supplierId);
         $.ajax({
-                   type: 'GET',
+            type: 'POST',
                     url: _url,
-                    data: null,
+                    data: formData,
                     cache: false,
                     processData: false,
-                    async: true,
-                    contentType: "application/json",
+                    contentType: false,
                     success: function (response) {
                         try
                         {
 
                             alert(response.message);
-                            let data=[];
+                            //let data=[];
                             if (response.success)
-                            {
-									$("body").removeClass("loading");
-                                    data=response.data;
+                            {$("#SupplierId").val("");
+							$("#DNCNumber").val("");
+									//$("body").removeClass("loading");
+                                    //data=response.data;
                             }
-                             $('#dtSupplier').DataTable({
-                                                        data: data,
-                                                        "destroy": true,
-                                                        "deferRender": true,
-                                                        "pageLength": 5,
-                                                        // "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                                                        //"order": [[0, "desc"]],
-                                                        "fnCreatedRow": function (nRow, row, iDataIndex) {
-                                                           $(nRow).attr('id', row.id);
-                                                        },
-                                                        columns: [
-                                                              { "data": "vendor.vendor_name" },
-                                                               { "data": "dnc_number" },
-															   {
-                 "render": function (data, type, row, meta) {
-                  return "<a href='#' onclick=Delete('" + row.id + "'); class='fa fa-trash fa-lg alert-danger'></a>";
-                   
-                 }
-             },
-
-                                                        ]
-                                                        });
+                            
+                     
 
                         }
                         catch (ex) {
@@ -306,18 +296,18 @@ body.loading .overlay{
     });
 function Delete(Id)
 {
-// let data = { Id: Id };
-let url = "http://127.0.0.1:8000/api/dncnumber_view/" + Id + "/";
-let   Table = $('#dtSupplier').DataTable();
+ let data = { Id: Id };
+ let url = "http://127.0.0.1:8000/api/dncnumber_view/";
+let   Table = $('#tbl').DataTable();
  $.ajax({
                 url: url,
-                type: "DELETE",
+                type: "POST",
                 async: true,
                 processData: false,
                 cache: false,
                 contentType: false,
                 success: function (msg) {
-                    if (msg.success) {
+                    if (msg.issuccess) {
                         Table.row($("#" + Id).closest('tr')).remove().draw();
                     }
                    
