@@ -18,6 +18,7 @@ from .serializers import (
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import action
+from django.db import transaction
 
 
 
@@ -174,7 +175,7 @@ class DncNumberViewSet(viewsets.ViewSet):
                 st = time.time()
                 for n, line in enumerate(reader):
                     line['dnc_number'] = line['Phone'].strip()
-                    if len(line['dnc_number']) == 10:
+                    if len(line['dnc_number']) != 10:
                         error_data.append({"message":f"phone number {line['dnc_number']} at line {n+2} does not meet the set limit"})
                         continue
                     line['vendor'] = request.data['vendor_id']
@@ -195,16 +196,22 @@ class DncNumberViewSet(viewsets.ViewSet):
             # et = time.time()
             # print('save', et-st)
             # data = serializer.data
-            return Response({"data":error_data, "success":True, "message":"dnc created successfully"}, status=status.HTTP_200_OK)
+            return Response({"data":error_data, "success":True, "message":"dnc file uploaded successfully"}, status=status.HTTP_200_OK)
         else:
             data = dict()
             data['dnc_number'] = request.data['dnc_num']
             data['vendor'] = request.data['vendor_id']
-            serializer = DncNumberSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            data = serializer.data
-            return Response({"data":data, "success":True, "message":"dnc number created successfully"}, status=status.HTTP_200_OK)
+            data2 = data
+            data2['username'] = request.data['user_name']
+            with transaction.atomic():
+                serializer1 = DncNumberSerializer(data=data)
+                serializer1.is_valid(raise_exception=True)
+                serializer1.save()
+                serializer2 = DialedDncNumberSerializer(data=data2)
+                serializer2.is_valid(raise_exception=True)
+                serializer2.save()
+            data = serializer2.data
+            return Response({"data":data, "success":True, "message":"dnc number added successfully"}, status=status.HTTP_200_OK)
 
 
     def update(self, request, pk=None):
@@ -251,9 +258,9 @@ class DialedDncNumberViewSet(viewsets.ViewSet):
 
     def create(self, request):
         data = dict()
-        print(request.data)
         data['dnc_number'] = request.data['dnc_num']
         data['vendor'] = request.data['vendor_id']
+        data['username'] = request.data['user_name']
         serializer = DialedDncNumberSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

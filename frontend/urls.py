@@ -12,8 +12,6 @@ urlpatterns = [
 
 	path('add-dnc-number', views.add_dnc_number, name="add-dnc-number"),
 
-	path('add-dialed-dnc-number', views.add_dialed_dnc_number, name="add-dialed-dnc-number"),
-
 	path('search-dialed-dnc-number', views.search_dialed_dnc_system, name="search-dialed-dnc-number"),
 
 	path('logout', views.logout_view, name="logout"),

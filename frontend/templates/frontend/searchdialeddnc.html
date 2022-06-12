@@ -83,12 +83,9 @@ body.loading .overlay{
                         <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
                         <a class="collapse-item" href="{% url 'add-dnc-number' %}">Add DNC</a>
                         <a class="collapse-item" href="{% url 'search-dialed-dnc-number' %}">Search Dialed DNC</a>
-                        <a class="collapse-item" href="{% url 'add-dialed-dnc-number' %}">Add Dialed DNC</a>
                         {% else %}
                         <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
                         <a class="collapse-item" href="{% url 'add-dnc-number' %}">Add DNC</a>
-                        <a class="collapse-item" href="{% url 'search-dialed-dnc-number' %}">Search Dialed DNC</a>
-                        <a class="collapse-item" href="{% url 'add-dialed-dnc-number' %}">Add Dialed DNC</a>
                         {% endif %}
 
                     </div>
@@ -162,6 +159,7 @@ body.loading .overlay{
                                             <th>Vendor Name</th>
                                             <th>Contact Number</th>
 											<th>Date</th>
+                                            <th>User Name</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -279,7 +277,8 @@ body.loading .overlay{
                                                         columns: [
                                                                 { "data": "vendor.vendor_name" },
                                                                 { "data": "dnc_number" },
-															    { "data": "modified_at"}
+															    { "data": "modified_at" },
+                                                                { "data": "username.username" }
                                                             ]
                                                         });
 

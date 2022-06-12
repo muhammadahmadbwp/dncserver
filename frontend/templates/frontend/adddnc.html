@@ -83,12 +83,9 @@ body.loading .overlay{
                         <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
                         <a class="collapse-item" href="{% url 'add-dnc-number' %}">Add DNC</a>
                         <a class="collapse-item" href="{% url 'search-dialed-dnc-number' %}">Search Dialed DNC</a>
-                        <a class="collapse-item" href="{% url 'add-dialed-dnc-number' %}">Add Dialed DNC</a>
                         {% else %}
                         <a class="collapse-item" href="{% url 'search-dnc-system' %}">Search DNC</a>
                         <a class="collapse-item" href="{% url 'add-dnc-number' %}">Add DNC</a>
-                        <a class="collapse-item" href="{% url 'search-dialed-dnc-number' %}">Search Dialed DNC</a>
-                        <a class="collapse-item" href="{% url 'add-dialed-dnc-number' %}">Add Dialed DNC</a>
                         {% endif %}
 
                     </div>
@@ -233,6 +230,9 @@ body.loading .overlay{
     <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
     <!-- Page level custom scripts -->
     <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+    {% if user.is_authenticated %}
+    <input type="text" class="form-control" id="UserName" value="{{user.id}}" hidden>
+    {% endif %}
 
 </body>
 
@@ -244,6 +244,7 @@ body.loading .overlay{
     $("#linkSaveSupplier").click(function(){
         let supplierId = $("#SupplierId").val();
         let DNCNumber = $("#DNCNumber").val();
+        let UserName = $("#UserName").val();
 		if(supplierId =="")
 {
 alert("Please select vendor")
@@ -259,6 +260,7 @@ return;
         let formData = new FormData();
 		formData.append("dnc_num",DNCNumber);
 		formData.append("vendor_id",supplierId);
+        formData.append("user_name",UserName)
         $.ajax({
             type: 'POST',
                     url: _url,
@@ -275,6 +277,7 @@ return;
                             if (response.success)
                             {$("#SupplierId").val("");
 							$("#DNCNumber").val("");
+                            $("#UserName").val("");
 									//$("body").removeClass("loading");
                                     //data=response.data;
                             }
