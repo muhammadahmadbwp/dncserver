@@ -233,6 +233,12 @@ body.loading .overlay{
     <!-- Page level custom scripts -->
     <script src="{% static 'js/demo/datatables-demo.js' %}"></script>
 
+    {% if user.is_superuser %}
+    <input type="hidden" id="hdnSession" value="true" />
+    {% else %}
+    <input type="hidden" id="hdnSession" value="false" />
+    {% endif %}
+
 </body>
 
 </html>
@@ -241,6 +247,7 @@ body.loading .overlay{
     $(document).ready(function(){
     GetAllSupplier();
     $("#linkSaveSupplier").click(function(){
+        let hdnSession = $("#hdnSession").val();
         let supplierId = $("#SupplierId").val();
         let phoneNumber = $("#PhoneNumber").val();
 
@@ -251,7 +258,8 @@ body.loading .overlay{
             return;
         }
         let _url  = "/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
-		$("body").addClass("loading");							  
+		$("body").addClass("loading");
+        if (hdnSession=="true"){
         $.ajax({
                    type: 'GET',
                     url: _url,
@@ -303,7 +311,55 @@ body.loading .overlay{
                     error: function () {
 						$("body").removeClass("loading");
                     }
-                });
+                })}
+                else{
+                    $.ajax({
+                   type: 'GET',
+                    url: _url,
+                    data: null,
+                    cache: false,
+                    processData: false,
+                    async: true,
+                    contentType: "application/json",
+                    success: function (response) {
+                        try
+                        {
+
+                            alert(response.message);
+                            let data=[];
+                            if (response.success)
+                            {
+									$("body").removeClass("loading");
+                                    data=response.data;
+                            }
+                             $('#dtSupplier').DataTable({
+                                                        data: data,
+                                                        "destroy": true,
+                                                        "deferRender": true,
+                                                        "pageLength": 5,
+                                                        // "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                                                        //"order": [[0, "desc"]],
+                                                        "fnCreatedRow": function (nRow, row, iDataIndex) {
+                                                           $(nRow).attr('id', row.id);
+                                                        },
+                                                        columns: [
+                                                              { "data": "vendor.vendor_name" },
+                                                               { "data": "dnc_number" }
+
+                                                        ]
+                                                        });
+
+                        }
+                        catch (ex) {
+                            console.log(ex);
+							$("body").removeClass("loading");
+                        }
+                    },
+                    error: function () {
+						$("body").removeClass("loading");
+                    }
+                })  
+                };
 
         });
     });
