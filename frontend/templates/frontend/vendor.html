@@ -102,7 +102,7 @@
                                                 </div>
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
                                                     <input type="text" class="form-control form-control-user" id="PhoneNumber"
-                                                           placeholder="Phone Number">
+                                                           placeholder="Phone Number" maxlength="10">
                                                 </div>
                                             </div>
                                            
@@ -197,9 +197,14 @@
             $("#SupplierName").focus();
             return;
         }
-
+        if (phoneNumber.length != 10 && (phoneNumber != null || phoneNumber != ""))
+        {
+            alert("Phone Number does not match the required length");
+            $("#PhoneNumber").focus();
+            return;
+        }
         let _data =JSON.stringify({"vendor_name":supplierName,"phone_number":phoneNumber});
-        let _url  = "http://127.0.0.1:8000/api/vendor_view/";
+        let _url  = "/api/vendor_view/";
          $.ajax({
                     type: 'POST',
                     url: _url,

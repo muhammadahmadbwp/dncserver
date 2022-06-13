@@ -128,7 +128,7 @@ body.loading .overlay{
                                                 </div>
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
                                                     <input type="text" class="form-control" id="PhoneNumber"
-                                                           placeholder="Phone Number">
+                                                           placeholder="Phone Number" maxlength="10">
                                                 </div>
                                             </div>
                                            
@@ -242,8 +242,13 @@ body.loading .overlay{
     $("#linkSaveSupplier").click(function(){
         let supplierId = $("#SupplierId").val();
         let phoneNumber = $("#PhoneNumber").val();
-
-        let _url  = "http://127.0.0.1:8000/api/dialed_dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
+        if (phoneNumber.length != 10 && (phoneNumber != null || phoneNumber != ""))
+        {
+            alert("Phone Number does not match the required length");
+            $("#PhoneNumber").focus();
+            return;
+        }
+        let _url  = "/api/dialed_dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
 		$("body").addClass("loading");							  
         $.ajax({
                    type: 'GET',
@@ -298,7 +303,7 @@ body.loading .overlay{
 function Delete(Id)
 {
 // let data = { Id: Id };
-let url = "http://127.0.0.1:8000/api/dncnumber_view/" + Id + "/";
+let url = "/api/dncnumber_view/" + Id + "/";
 let   Table = $('#dtSupplier').DataTable();
  $.ajax({
                 url: url,
@@ -322,7 +327,7 @@ let   Table = $('#dtSupplier').DataTable();
     {
 
         let _data =null;
-        let _url  = "http://127.0.0.1:8000/api/vendor_view/";
+        let _url  = "/api/vendor_view/";
 		$.ajax({
                     type: 'GET',
                     url: _url,

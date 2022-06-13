@@ -91,7 +91,7 @@
                 return;
             }
             let _data =  JSON.stringify({ "Username": userName, "Password": password });
-            let _url = "http://127.0.0.1:8000/api/userauth/login/";
+            let _url = "/api/userauth/login/";
             $.ajax({
                 type: 'POST',
                 url: _url,

@@ -128,7 +128,7 @@ body.loading .overlay{
                                                 </div>
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
                                                     <input type="text" class="form-control" id="DNCNumber"
-                                                           placeholder="DNC Number">
+                                                           placeholder="DNC Number" maxlength="10">
                                                 </div>
                                             </div>
                                            
@@ -255,7 +255,13 @@ if(DNCNumber =="")
 alert("Please enter DNC Number.")
 return;
 }	
-        let _url  = "http://127.0.0.1:8000/api/dncnumber_view/";
+if (DNCNumber.length != 10 && (DNCNumber == null || DNCNumber == ""))
+        {
+            alert("Phone Number does not match the required length");
+            $("#DNCNumber").focus();
+            return;
+        }
+        let _url  = "/api/dncnumber_view/";
 		// $("body").addClass("loading");				
         let formData = new FormData();
 		formData.append("dnc_num",DNCNumber);
@@ -300,7 +306,7 @@ return;
 function Delete(Id)
 {
  let data = { Id: Id };
- let url = "http://127.0.0.1:8000/api/dncnumber_view/";
+ let url = "/api/dncnumber_view/";
 let   Table = $('#tbl').DataTable();
  $.ajax({
                 url: url,
@@ -324,7 +330,7 @@ let   Table = $('#tbl').DataTable();
     {
 
         let _data =null;
-        let _url  = "http://127.0.0.1:8000/api/vendor_view/";
+        let _url  = "/api/vendor_view/";
 		$.ajax({
                     type: 'GET',
                     url: _url,

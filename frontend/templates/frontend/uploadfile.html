@@ -238,7 +238,7 @@ body.loading .overlay{
         _data.append( 'vendor_id',supplierId);
         _data.append( 'dnc_num_file',file);
 
-        let _url  = "http://127.0.0.1:8000/api/dncnumber_view/";
+        let _url  = "/api/dncnumber_view/";
         $("body").addClass("loading");
 		$.ajax({
                    type: 'POST',
@@ -273,7 +273,7 @@ body.loading .overlay{
     {
 
         let _data =null;
-        let _url  = "http://127.0.0.1:8000/api/vendor_view/";
+        let _url  = "/api/vendor_view/";
          $.ajax({
                     type: 'GET',
                     url: _url,
