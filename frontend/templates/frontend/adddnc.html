@@ -255,7 +255,7 @@ if(DNCNumber =="")
 alert("Please enter DNC Number.")
 return;
 }	
-if (DNCNumber.length != 10 && (DNCNumber == null || DNCNumber == ""))
+if (DNCNumber.length != 10 && DNCNumber != "")
         {
             alert("Phone Number does not match the required length");
             $("#DNCNumber").focus();

@@ -243,13 +243,14 @@ body.loading .overlay{
     $("#linkSaveSupplier").click(function(){
         let supplierId = $("#SupplierId").val();
         let phoneNumber = $("#PhoneNumber").val();
-        if (phoneNumber.length != 10 && (phoneNumber != null || phoneNumber != ""))
+        console.log(phoneNumber.length)
+        if (phoneNumber.length != 10 && phoneNumber != "")
         {
             alert("Phone Number does not match the required length");
             $("#PhoneNumber").focus();
             return;
         }
-        let _url  = "http://127.0.0.1:8000/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
+        let _url  = "/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
 		$("body").addClass("loading");							  
         $.ajax({
                    type: 'GET',
