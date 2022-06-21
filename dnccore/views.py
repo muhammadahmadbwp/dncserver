@@ -203,14 +203,17 @@ class DncNumberViewSet(viewsets.ViewSet):
             data['vendor'] = request.data['vendor_id']
             data2 = data
             data2['username'] = request.data['user_name']
+            if DncNumber.objects.filter(dnc_number=data['dnc_number']).exists() and DialedDncNumber.objects.filter(dnc_number=data['dnc_number']).exists():
+                return Response({"data":data, "success":True, "message":"This Number is Duplicate"}, status=status.HTTP_200_OK)
             with transaction.atomic():
-                serializer1 = DncNumberSerializer(data=data)
-                serializer1.is_valid(raise_exception=True)
-                serializer1.save()
-                serializer2 = DialedDncNumberSerializer(data=data2)
-                serializer2.is_valid(raise_exception=True)
-                serializer2.save()
-            data = serializer2.data
+                if not DncNumber.objects.filter(dnc_number=data['dnc_number']).exists():
+                    serializer1 = DncNumberSerializer(data=data)
+                    serializer1.is_valid(raise_exception=True)
+                    serializer1.save()
+                if not DialedDncNumber.objects.filter(dnc_number=data['dnc_number']).exists():
+                    serializer2 = DialedDncNumberSerializer(data=data2)
+                    serializer2.is_valid(raise_exception=True)
+                    serializer2.save()
             return Response({"data":data, "success":True, "message":"dnc number added successfully"}, status=status.HTTP_200_OK)
 
 
