@@ -258,8 +258,9 @@ body.loading .overlay{
             return;
         }
         let _url  = "/api/dncnumber_view?vendor_id="+supplierId+"&&search_dnc_num="+phoneNumber;
-		$("body").addClass("loading");
+		// $("body").addClass("loading");
         if (hdnSession=="true"){
+        $("body").addClass("loading");
         $.ajax({
                    type: 'GET',
                     url: _url,
@@ -313,6 +314,13 @@ body.loading .overlay{
                     }
                 })}
                 else{
+                    if (phoneNumber.length != 10 || phoneNumber=="")
+                    {
+                        alert("Phone Number does not match the required length");
+                        $("#PhoneNumber").focus();
+                        return;
+                    }
+                    $("body").addClass("loading");
                     $.ajax({
                    type: 'GET',
                     url: _url,
